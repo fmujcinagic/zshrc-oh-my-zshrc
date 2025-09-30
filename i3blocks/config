@@ -1,0 +1,36 @@
+# Global properties
+command=/usr/share/i3blocks/$BLOCK_NAME
+separator_block_width=15
+markup=none
+
+[volume]
+label=
+instance=Master
+interval=once
+signal=10
+
+[cpu_usage]
+label=
+interval=5
+min_width=CPU: 100.00%
+
+[memory]
+label=
+interval=30
+
+[disk]
+label=
+instance=/
+interval=60
+
+[iface]
+label=
+interval=10
+
+[battery]
+label=
+interval=30
+
+[time]
+command=date '+%a %d %b %H:%M'
+interval=60

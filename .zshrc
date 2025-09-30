@@ -1,83 +1,8 @@
-#!/bin/bash
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+[[ $- != *i* ]] && return
 
-set -e  # Exit on error
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${GREEN}Starting Zsh + Oh My Zsh setup...${NC}"
-
-# Function to print status
-status() { echo -e "${YELLOW}[INFO]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-
-status "Updating package list..."
-sudo apt update || error "Failed to update packages. Ensure apt is available."
-
-if ! command -v git &> /dev/null; then
-    status "Installing git..."
-    sudo apt install -y git || error "Failed to install git."
-fi
-
-if ! command -v zsh &> /dev/null; then
-    status "Installing Zsh..."
-    sudo apt install -y zsh || error "Failed to install Zsh."
-    success "Zsh installed."
-else
-    status "Zsh already installed."
-fi
-
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    status "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended --keep-zshrc || error "Failed to install Oh My Zsh."
-    success "Oh My Zsh installed."
-else
-    status "Oh My Zsh already installed."
-fi
-
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
-    status "Installing Powerlevel10k theme..."
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k || error "Failed to install Powerlevel10k."
-    success "Powerlevel10k installed."
-else
-    status "Powerlevel10k already installed."
-fi
-
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-    status "Installing zsh-autosuggestions..."
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions || error "Failed to install zsh-autosuggestions."
-    success "zsh-autosuggestions installed."
-else
-    status "zsh-autosuggestions already installed."
-fi
-
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-    status "Installing zsh-syntax-highlighting..."
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting || error "Failed to install zsh-syntax-highlighting."
-    success "zsh-syntax-highlighting installed."
-else
-    status "zsh-syntax-highlighting already installed."
-fi
-
-if [ ! -d "$HOME/.fzf" ]; then
-    status "Installing fzf..."
-    git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
-    $HOME/.fzf/install --all --no-update-rc || error "Failed to install fzf."
-    success "fzf installed."
-else
-    status "fzf already installed."
-fi
-
-if [ -f "$HOME/.zshrc" ]; then
-    cp "$HOME/.zshrc" "$HOME/.zshrc.backup.$(date +%Y%m%d_%H%M%S)"
-    status "Backed up existing .zshrc to .zshrc.backup.$(date +%Y%m%d_%H%M%S)"
-fi
-
-cat > "$HOME/.zshrc" << 'EOF'
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -191,34 +116,8 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-EOF
 
-success ".zshrc created/updated."
-
-# Set Zsh as default shell if not already
-if [ "$SHELL" != "$(which zsh)" ]; then
-    status "Setting Zsh as default shell..."
-    chsh -s "$(which zsh)" || error "Failed to change shell. Run 'chsh -s /usr/bin/zsh' manually."
-    echo -e "${YELLOW}Shell changed to Zsh. Log out and back in for it to take effect.${NC}"
-else
-    status "Zsh is already default shell."
+# Only start tmux if we're in a real terminal, not already inside tmux, and not nested
+if [ -z "$TMUX" ] && [ -t 1 ]; then
+  tmux attach -t main 2>/dev/null || tmux new -s main
 fi
-
-# Reload Zsh in current session (optional, for testing)
-status "Reloading Zsh config..."
-source "$HOME/.zshrc"
-
-# Prompt for p10k configure if .p10k.zsh doesn't exist
-if [ ! -f "$HOME/.p10k.zsh" ]; then
-    echo -e "${YELLOW}Powerlevel10k config not found. Run 'p10k configure' to set it up interactively.${NC}"
-else
-    success "Powerlevel10k config found."
-fi
-
-echo "Now installing additional packets..."
-
-sudo apt install i3 i3blocks feh rofi lxappearance fonts-font-awesome volumeicon-alsa nm-applet scrot xclip brightnessctl pamixer tmux fzf dunst arandr pavucontrol
-
-success "Setup complete! Restart your terminal or log out/in."
-
-

@@ -1,0 +1,104 @@
+# Set mod key to Super (Windows key)
+set $mod Mod4
+
+# Font
+font pango:monospace 10
+
+# Launch terminal
+bindsym $mod+Return exec x-terminal-emulator
+
+# Kill focused window
+bindsym $mod+Shift+q kill
+
+# Rofi launcher (instead of dmenu)
+bindsym $mod+d exec rofi -show drun
+
+# Change focus
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move windows
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Split orientation
+bindsym $mod+v split v
+bindsym $mod+b split h
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Floating toggle
+bindsym $mod+Shift+space floating toggle
+
+# Focus parent/child
+bindsym $mod+a focus parent
+bindsym $mod+c focus child
+
+# Workspaces
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+
+# Reload/Restart/Exit i3
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -b 'Yes' 'i3-msg exit'"
+
+# Bar with i3blocks
+bar {
+    status_command i3blocks
+    tray_output primary
+    position top
+    font pango:monospace 10
+}
+
+# Startup apps
+exec_always --no-startup-id feh --bg-scale ~/Downloads/a_red_sun_over_mountains.jpg
+exec_always --no-startup-id nm-applet
+exec_always --no-startup-id volumeicon
+exec_always --no-startup-id xss-lock -- i3lock -c 000000
+
+bindsym XF86AudioRaiseVolume exec pamixer -i 5
+bindsym XF86AudioLowerVolume exec pamixer -d 5
+bindsym XF86AudioMute exec pamixer -t
+
+exec_always --no-startup-id ~/.local/bin/i3-autoreload.sh
+
+bindsym XF86MonBrightnessUp exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+
+
+assign [class="Gnome-terminal"] 1 
+assign [class="Brave-browser"] 2
+assign [class="Code"] 3
+assign [class="Discord"] 4
+assign [class="Virt-manager"] 5
+
+bindsym Print exec mkdir -p ~/Pictures && scrot -q 100 ~/Pictures/%Y-%m-%d-%H%M%S.png -e 'xclip -selection clipboard -t image/png -i $f'
+
+# Selection screenshot to file + clipboard (click-drag to select)
+bindsym Shift+Print exec mkdir -p ~/Pictures && scrot -s -q 100 ~/Pictures/%Y-%m-%d-%H%M%S.png -e 'xclip -selection clipboard -t image/png -i $f'
+
+exec --no-startup-id xset -b
